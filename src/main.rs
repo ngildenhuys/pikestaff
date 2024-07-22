@@ -1,38 +1,39 @@
-use std::time::Duration;
-
+use rand_chacha::{
+    rand_core::{RngCore, SeedableRng},
+    ChaCha8Rng,
+};
 use verilated_module::module;
 
-#[module(async_fifo)]
-pub struct AsyncFifo {
-    #[port(input)]
-    pub write_clk: bool, //input write clock
-    #[port(input)]
-    pub read_clk: bool, //input read clock
+#[module(async_fifo_tb)]
+pub struct AsyncFifoTb {
+    #[port(clock)]
+    pub clk: bool,
     #[port(reset)]
-    pub reset: bool, //input reset
+    pub rst_l: bool,
+    // inputs
     #[port(input)]
-    pub write_en: bool, //input write enable
+    pub write_en: bool,
     #[port(input)]
-    pub read_en: bool, //input read enable
+    pub read_en: bool,
     #[port(input)]
-    pub data_in: [bool; 8], //input data
+    pub write_data: [bool; 8],
+    // outputs
     #[port(output)]
-    pub mem_full: bool, //output memory full
+    pub mem_full: bool,
     #[port(output)]
-    pub mem_empty: bool, //output memory empty
+    pub mem_empty: bool,
     #[port(output)]
-    pub out: [bool; 8], //output data
+    pub read_data: [bool; 8],
 }
 
-fn main() {
-    let mut tb = AsyncFifo::default();
+pub fn run_testbench(seed: [u8; 32]) {
+    let mut rng = ChaCha8Rng::from_seed(seed);
+    let mut tb = AsyncFifoTb::default();
     tb.eval();
     tb.eval();
-
     // tb.open_trace("counter.vcd", 99).unwrap();
-
     let mut clocks: u64 = 0;
-    for _ in 0..10 {
+    for _ in 0..1000 {
         if clocks == 0 {
             tb.reset_toggle();
         } else if clocks == 2 {
@@ -41,17 +42,22 @@ fn main() {
 
         tb.clock_toggle();
         tb.eval();
-        tb.trace_at(Duration::from_nanos(20 * clocks));
+
+        // change the write data;
+        let rand_data = (rng.next_u32() & 0xff) as u8;
+        // let write_data = (0..8).map(|v| bool::from((rand_data >> v) & 1)).collect();
+        tb.set_write_data(rand_data);
+        tb.set_read_en(((rng.next_u32() % 2) & 0x1) as u8);
+        tb.set_write_en(((rng.next_u32() % 2) & 0x1) as u8);
 
         tb.clock_toggle();
         tb.eval();
-        tb.trace_at(Duration::from_nanos(20 * clocks + 10));
-
-        // println!("{}: count_o = {}", clocks, tb.count_o());
-
         clocks += 1;
     }
-    tb.trace_at(Duration::from_nanos(20 * clocks));
 
     tb.finish();
+}
+
+fn main() {
+    run_testbench([0; 32]);
 }

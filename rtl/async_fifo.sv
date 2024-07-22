@@ -4,13 +4,13 @@
 module async_fifo (
     input  logic       write_clk,  //input write clock
     input  logic       read_clk,   //input read clock
-    input  logic       reset,      //input reset
+    input  logic       rst_l,      //input reset
     input  logic       write_en,   //input write enable
     input  logic       read_en,    //input read enable
-    input  logic [7:0] data_in,    //input data
+    input  logic [7:0] write_data,    //input data
     output logic       mem_full,   //output memory full
     output logic       mem_empty,  //output memory empty
-    output logic [7:0] out         //output data
+    output logic [7:0] read_data         //output data
 );
 
 
@@ -26,14 +26,14 @@ module async_fifo (
   /*Whenever the reset is 0 then make write pointer 0 otherwise if write enable
   * and memory is not full then write data into memory and increment write
   * pointer*/
-  always_ff @(posedge write_clk, negedge reset) begin
-    if (!reset) begin
+  always_ff @(posedge write_clk, negedge rst_l) begin
+    if (!rst_l) begin
       write_ptr <= 3'b0;  //reset pointer
     end else begin
       if (write_en == 1 && !mem_full) begin
-        mem[write_ptr] <= data_in;  //data is written
+        mem[write_ptr] <= write_data;  //data is written
         write_ptr      <= write_ptr + 1'b1;  //pointer increment
-        out            <= 8'bxxxxxxxx;
+        read_data            <= 8'bxxxxxxxx;
       end else begin
       end
     end
@@ -42,12 +42,12 @@ module async_fifo (
   /*Whenever the reset is 0 then make read pointer 0 otherwise if read enable
   * and memory is not empty then read data from memory and increment read
   * pointer*/
-  always_ff @(posedge read_clk, negedge reset) begin
-    if (!reset) begin
+  always_ff @(posedge read_clk, negedge rst_l) begin
+    if (!rst_l) begin
       read_ptr <= 3'b0;  //reset pointer
     end else begin
       if (read_en == 1 && !mem_empty) begin
-        out      <= mem[read_ptr];  //data is read
+        read_data      <= mem[read_ptr];  //data is read
         read_ptr <= read_ptr + 1'b1;  //pointer increment
       end else begin
       end
@@ -55,8 +55,8 @@ module async_fifo (
   end
 
   /*increment count for write enable 1 and decrement count for read enable 1*/
-  always_ff @(posedge write_clk, posedge read_clk, negedge reset) begin
-    if (!reset) count <= 4'b0;  //reset counter
+  always_ff @(posedge write_clk, posedge read_clk, negedge rst_l) begin
+    if (!rst_l) count <= 4'b0;  //reset counter
     else begin
       case ({
         write_en, read_en
@@ -67,4 +67,4 @@ module async_fifo (
       endcase
     end
   end
-endmodule  //end of async FIFO
+endmodule : async_fifo

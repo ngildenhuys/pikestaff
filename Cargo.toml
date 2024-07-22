@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 verilated = {path = "../work/verilated-rs/verilated/"}
 verilated-module = {path = "../work/verilated-rs/verilated-module/"}
+rand_chacha = "0.3.1"
 
 [build-dependencies]
 verilator = {path = "../work/verilated-rs/verilator/", features = ["gen","module"]}

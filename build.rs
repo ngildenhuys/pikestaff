@@ -28,6 +28,7 @@ fn main() {
         .with_coverage(true)
         .with_trace(true)
         .file("rtl/async_fifo.sv")
-        .file(out_dir.join("async_fifo.cpp"))
-        .build("async_fifo");
+        .file("rtl/async_fifo_tb.sv")
+        .file(out_dir.join("async_fifo_tb.cpp"))
+        .build("async_fifo_tb");
 }
