@@ -1,0 +1,11 @@
+[package]
+name = "pikestaff"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+verilated = {path = "../work/verilated-rs/verilated/"}
+verilated-module = {path = "../work/verilated-rs/verilated-module/"}
+
+[build-dependencies]
+verilator = {path = "../work/verilated-rs/verilator/", features = ["gen","module"]}
