@@ -9,4 +9,4 @@ verilated = { git = "https://github.com/ngildenhuys/verilated-rs", version = "0.
 verilated-module = { git = "https://github.com/ngildenhuys/verilated-rs", version = "0.1.1" }
 
 [build-dependencies]
-verilator = { git = "https://github.com/ngildenhuys/verilated-rs", version = "0.1.6" }
+verilator = { git = "https://github.com/ngildenhuys/verilated-rs", version = "0.1.6", features = ["module"]}
