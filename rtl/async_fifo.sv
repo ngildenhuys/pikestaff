@@ -11,6 +11,7 @@ module async_fifo (
     output logic       mem_full,   //output memory full
     output logic       mem_empty,  //output memory empty
     output logic [7:0] read_data         //output data
+    // dv_inf dv_if
 );
 
 
